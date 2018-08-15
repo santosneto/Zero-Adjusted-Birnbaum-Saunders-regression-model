@@ -1,42 +1,51 @@
 ---
-title: "Zero-Adjusted Birnbaum-Saunders regression model"
-author: "Vera Tomazella, JuvÃªncio S. Nobre, Gustavo, H.A. Pereira and Manoel Santos-Neto"
+title: "Paper: Zero-Adjusted Birnbaum-Saunders regression model"
+author: "Vera Tomazella, Juvêncio S. Nobre, Gustavo, H.A. Pereira and Manoel Santos-Neto"
 date: "August 14, 2018"
-output:
-  html_document:
-   keep_md: true
+output: bookdown::html_document2
 bibliography: bibliography.bib
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+```{r global_options, include=FALSE}
+library(knitr)
+knitr::opts_chunk$set(fig.width=12,fig.height=8,echo=TRUE,warning=FALSE,message=FALSE)
 ```
 
-## BS nonlinear regression model
+# Application
 
-In this application, the data set considered is the biaxial fatigue data analyzed by @rn:91, @lc:09, @Lemonte:2011aa, @vrc:12 and @Lemonte:2016aa. This data set has 46 observations and consists of lifes of a metal piece subjected to cyclic stretching and compressing, where the response variable $N$ denotes the number of cycles to failure of the metal specimen and the explanatory variable $W$ is the work per cycle ($mj/m^3$).  Here, we use the response variable on a reduced scale to facilitate the estimation procedure, i.e., $Y \times 100 \equiv N$. Therefore, we fit a RBS nonlinear regression model
-\[
-\mu_i = \beta_1 \textrm{e}^{\frac{\beta_2}{w_i}}, \quad i=1,\ldots,46,
-\]
-where $Y_i \sim \text{BS}(\mu_i,\sigma)$. The adjustment was performed using the function **nlgamlss()** of the package **gamlss.nl** whose objective  is to allow nonlinear fitting within a GAMLSS model. The estimates and standard errors obtained were:
-
-
+## R packages
 ```{r}
 library(gamlss.nl)
-library(RBS)
-library(ggplot2)
+library(RBS) 
+library(ggplot2) 
+library(ssym)
+```
+
+## Data
+In this application, the data set considered is the biaxial fatigue data analyzed by @rn:91, @lc:09, @Lemonte:2011aa, @vrc:12 and @Lemonte:2016aa. This data set has 46 observations and consists of lifes of a metal piece subjected to cyclic stretching and compressing, where the response variable $N$ denotes the number of cycles to failure of the metal specimen and the explanatory variable $W$ is the work per cycle ($mj/m^3$).  Here, we use the response variable on a reduced scale to facilitate the estimation procedure, i.e., $Y \times 100 \equiv N$.
+```{r}
 data("Biaxial", package="ssym")
 N <- Biaxial$Life
 N <- N/100;N
 W <- Biaxial$Work;W
-plot(N~W)
+```
+
+
+## RBS nonlinear regression model
+
+ Therefore, we fit a RBS nonlinear regression model
+\[
+\mu_i = \beta_1 \textrm{e}^{\frac{\beta_2}{w_i}}, \quad i=1,\ldots,46,
+\]
+where $Y_i \sim \text{RBS}(\mu_i,\sigma)$. The adjustment was performed using the function **nlgamlss()** of the package **gamlss.nl** whose objective  is to allow nonlinear fitting within a GAMLSS model. The estimates and standard errors obtained were
+```{r}
 mod1 <- nlgamlss(y=N,mu.fo=~p1*exp(p2/W),sigma.formula = ~1,mu.start =c(1,40),sigma.start =1,family = RBS(mu.link = "identity",sigma.link = "identity"))
 mod1$converged
 summary(mod1)
+```
 
-df <- data.frame(N=N,W=W,fv=mod1$mu.fv)
-ggplot(df,aes(W,N)) + geom_point() + geom_line(aes(W,fv),col=2)
 
+```{r fig,include=FALSE}
 envelope.nlrbs <- function(model,k=19, color = "grey50", xlabel = "Theorical Quantile",ylabel = "Empirical Quantile",font="serif")
 {
  
@@ -76,18 +85,29 @@ envelope.nlrbs <- function(model,k=19, color = "grey50", xlabel = "Theorical Qua
   rxb <- qqnorm(xb, plot.it = FALSE)$x
   
   df <- data.frame(r=r,xab=a,emin=cbind(e10,e11,e12),emax=cbind(e20,e21,e22),xb=xb,td=td,rxb=rxb)
-  ggplot(df,aes(r,td))+geom_ribbon(aes(x=xab, ymin=emin.e10, ymax=emax.e20),fill=color,alpha=0.5)  + geom_ribbon(aes(x=xab, ymin=emin.e11, ymax=emax.e21),fill=color,alpha=0.5) + geom_ribbon(aes(x=xab, ymin=emin.e12, ymax=emax.e22),fill=color,alpha=0.5) +scale_fill_gradient(low = "grey25", high = "grey75")+ geom_point() + geom_line(aes(rxb,xb),lty=2)+xlab(xlabel)+ylab(ylabel)+theme(text=element_text(size=14,family=font)) 
+  ggplot(df,aes(r,td))+geom_ribbon(aes(x=xab, ymin=emin.e10, ymax=emax.e20),fill=color,alpha=0.5)  + geom_ribbon(aes(x=xab, ymin=emin.e11, ymax=emax.e21),fill=color,alpha=0.5) + geom_ribbon(aes(x=xab, ymin=emin.e12, ymax=emax.e22),fill=color,alpha=0.5) +scale_fill_gradient(low = "grey25", high = "grey75")+ geom_point() + geom_line(aes(rxb,xb),lty=2)+xlab(xlabel)+ylab(ylabel)+theme(text=element_text(size=30,family=font)) 
 }
-envelope.nlrbs(mod1)
+```
+Figure \@ref(fig:fig1) shows the QQ-plot with simulated envelope of quantile residuals and the scatter plot with the fitted model.  Figures \@ref(fig:fig1)(a) and \@ref(fig:fig2) are used to verify the distribution assumption of the model and they do not show unusual features. Note that, in Figure \@ref(fig:fig1)(b), the fitted line (proposed model) has a good agreement with the real data.
 
+```{r fig1,fig.cap="QQ-plot with simulated envelope of quantile residuals (a) and scatter-plot with fitted model (b).",fig.show = 'hold',out.width = '50%'}
+set.seed(13171619)
+envelope.nlrbs(mod1,k=100)
+df <- data.frame(N=N,W=W,fv=mod1$mu.fv)
+ggplot(df,aes(W,N)) + geom_point(size=5) + geom_line(aes(W,fv),col=2)+ xlab("Work per cycle") + ylab("Number of cycles to failure (x 100)")+ theme(text=element_text(size=30,family="serif"))
+```
+
+```{r fig2, fig.show = 'hold',out.width = '50%',fig.cap="Residuals plots."}
 df<- data.frame(res=mod1$residuals,ind=1:mod1$N,fv=mod1$mu.fv)
-ggplot(df,aes(ind,res)) + geom_point() + geom_hline(yintercept = c(-3,3),lty=2)
-ggplot(df,aes(fv,res)) + geom_point() + geom_hline(yintercept = c(-3,3),lty=2)
+ggplot(df,aes(ind,res)) + geom_point(size=5) + geom_hline(yintercept = c(-3,3),lty=2) + xlab("Index") + ylab("Quantile Residual") + theme(text=element_text(size=30,family="serif"))
+ggplot(df,aes(fv,res)) + geom_point(size=5) + geom_hline(yintercept = c(-3,3),lty=2)+ xlab("Fitted Values") + ylab("Quantile Residual") + theme(text=element_text(size=30,family="serif"))
 
+```
 
+```{r include=FALSE}
 model <- mod1
-x1 <- exp(47.954/W)
-x2 <- (1.276/W)*exp(47.954/W)
+x1 <- exp(47.957/W)
+x2 <- (1.276/W)*exp(47.957/W)
 x <- cbind(x1,x2)
 z <- matrix(1,nrow=model$N)
 y <- model$y
@@ -174,36 +194,34 @@ dmu <- (-1/(2 * mu)) + sigma/((y * sigma) + y + (sigma*mu)) + ((sigma + 1) * y)/
                  dmax.theta = dmaxG.theta, Ci.beta = Cb.beta, Ci.alpha = Cb.alpha, 
                  Ci.theta = Cb.theta)
  
-  Cibeta <<- local.infl$Ci.beta
-  Cialpha <<- local.infl$Ci.alpha
-  Cigamma <<- local.infl$Ci.gamma
-  Citheta <<- local.infl$Ci.theta
+```
+
+Infuence diagnostics for the nonlinear BS regression model are presented in Figure \@ref(fig:fig3). Figure \@ref(fig:fig3) displays index plots of $\mathrm{C}_i$ and $|\mathbf{d}_\text{max}|$, from where observation \#1 is detected as potentially influential. Changes are not detected when the observation is removed.
+
+```{r fig3,fig.show = 'hold',out.width = '33%',fig.cap="Index plots of C_i and d_{max}."}  
+  Cibeta <- local.infl$Ci.beta
+  Cialpha <- local.infl$Ci.alpha
+  Citheta <- local.infl$Ci.theta
   
-  dmbeta <<- local.infl$dmax.beta
-  dmalpha <<- local.infl$dmax.alpha
-  dmtheta <<- local.infl$dmax.theta 
+  dmbeta <- local.infl$dmax.beta
+  dmalpha <- local.infl$dmax.alpha
+  dmtheta <- local.infl$dmax.theta 
   
-  index <<- 1:length(Cibeta)
+  index <- 1:length(Cibeta)
   CbxI <- data.frame(index,Cibeta,Cialpha,Citheta)
   CbxI. <- CbxI[c(1),]
-  p1 <- ggplot(CbxI,aes(index,Cibeta)) + geom_point(pch=4) + geom_text(data=CbxI.,aes(index,Cibeta,label=index),hjust=2) 
-  p2 <- ggplot(CbxI,aes(index,Cialpha)) + geom_point(pch=4) + geom_text(data=CbxI.,aes(index,Cialpha,label=index),hjust=2)
-  p4 <- ggplot(CbxI,aes(index,Citheta)) + geom_point(pch=4) + geom_text(data=CbxI.,aes(index,Citheta,label=index),hjust=2)
-  p1 + ylim(0,1)+xlab("I")
-  p2 + ylim(0,1)+xlab("I")
-  p4 + ylim(0,1)+xlab("I")
-  
+  ggplot(CbxI,aes(index,Cibeta)) + geom_point(size=10)+ ylim(0,1) + geom_text(data=CbxI.,aes(index,Cibeta,label=index),hjust=2,size=10) + xlab("Index") + ylab(expression(C[i]))+ theme(text=element_text(size=50,family="serif"))
+  ggplot(CbxI,aes(index,Cialpha)) + geom_point(size=10)+ ylim(0,1) + geom_text(data=CbxI.,aes(index,Cialpha,label=index),hjust=2,size=10) + xlab("Index") + ylab(expression(C[i]))+ theme(text=element_text(size=50,family="serif"))
+  ggplot(CbxI,aes(index,Citheta)) + geom_point(size=10)+ ylim(0,1) + geom_text(data=CbxI.,aes(index,Citheta,label=index),hjust=2,size=10) + xlab("Index") + ylab(expression(C[i]))+ theme(text=element_text(size=50,family="serif"))
+
   I <- 1:length(dmbeta)
   dxI <- data.frame(I,dmbeta,dmalpha,dmtheta)
   dxI... <- dxI[c(1),]
-  p1 <- ggplot(CbxI,aes(I,dmbeta)) + geom_point(pch=4) 
-  p2 <- ggplot(CbxI,aes(I,dmalpha)) + geom_point(pch=4) + geom_text(data=dxI...,aes(I,dmalpha,label=I),hjust=2)
-  p4 <- ggplot(CbxI,aes(I,dmtheta)) + geom_point(pch=4) 
-  p1 + ylim(0,1)
-  p2 + ylim(0,1)
-  p4 + ylim(0,1)
+  ggplot(CbxI,aes(I,dmbeta)) + geom_point(size=10)+ ylim(0,1)  + xlab("Index") + ylab(expression(d[max])) +  theme(text=element_text(size=50,family="serif"))
+  ggplot(CbxI,aes(I,dmalpha)) + geom_point(size=10)+ ylim(0,1) + geom_text(data=dxI...,aes(I,dmalpha,label=I),hjust=2,size=10) + xlab("Index") + ylab(expression(d[max]))+ theme(text=element_text(size=50,family="serif"))
+  ggplot(CbxI,aes(I,dmtheta)) + geom_point(size=10)+ ylim(0,1) + xlab("Index") + ylab(expression(d[max]))+ theme(text=element_text(size=50,family="serif"))
 ```
 
-We have that the mean of the number of cycles ($\times 100$) to failure of the metal specimen can be described by $\hat \mu(w_i) = 1.276\times \textrm{e}^{\frac{47.954}{w_i}}$.
+Finally, we have that the mean of the number of cycles ($\times 100$) to failure of the metal specimen can be described by $\hat \mu(w_i) = 1.276\times \textrm{e}^{\frac{47.957}{w_i}}$.
 
 ## References

@@ -1,14 +1,12 @@
 ---
 title: "Zero-Adjusted Birnbaum-Saunders regression model"
-author: "Vera Tomazella, JuvÃªncio S. Nobre, Gustavo, H.A. Pereira and Manoel Santos-Neto"
+author: "Vera Tomazella, Juvêncio S. Nobre, Gustavo, H.A. Pereira and Manoel Santos-Neto"
 date: "August 14, 2018"
 output:
   html_document:
    keep_md: true
 bibliography: bibliography.bib
 ---
-
-
 
 ## BS nonlinear regression model
 
