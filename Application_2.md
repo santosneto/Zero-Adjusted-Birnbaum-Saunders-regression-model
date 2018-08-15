@@ -1,162 +1,207 @@
-Zero-Adjusted Birnbaum-Saunders regression model
-================
-Vera Tomazella, JuvÃªncio S. Nobre, Gustavo, H.A. Pereira and Manoel
-Santos-Neto
-August 14, 2018
+---
+title: "Zero-Adjusted Birnbaum-Saunders regression model"
+author: "Vera Tomazella, Juvêncio S. Nobre, Gustavo, H.A. Pereira and Manoel Santos-Neto"
+date: "August 14, 2018"
+output:
+  html_document:
+   keep_md: true
+bibliography: bibliography.bib
+---
+
+
 
 ## BS nonlinear regression model
 
-In this application, the data set considered is the biaxial fatigue data
-analyzed by Rieck and Nedelman (1991), Lemonte and Cordeiro (2011),
-Lemonte and Patriota (n.d.), Vanegas, Rondon, and Cysneiros (2012) and
-Lemonte, Cordeiro, and Moreno-Arenas (2016). This data set has 46
-observations and consists of lifes of a metal piece subjected to cyclic
-stretching and compressing, where the response variable \(N\) denotes
-the number of cycles to failure of the metal specimen and the
-explanatory variable \(W\) is the work per cycle (\(mj/m^3\)). Here, we
-use the response variable on a reduced scale to facilitate the
-estimation procedure, i.e., \(Y \times 100 \equiv N\). Therefore, we fit
-a RBS nonlinear regression model \[
+In this application, the data set considered is the biaxial fatigue data analyzed by @rn:91, @lc:09, @Lemonte:2011aa, @vrc:12 and @Lemonte:2016aa. This data set has 46 observations and consists of lifes of a metal piece subjected to cyclic stretching and compressing, where the response variable $N$ denotes the number of cycles to failure of the metal specimen and the explanatory variable $W$ is the work per cycle ($mj/m^3$).  Here, we use the response variable on a reduced scale to facilitate the estimation procedure, i.e., $Y \times 100 \equiv N$. Therefore, we fit a RBS nonlinear regression model
+\[
 \mu_i = \beta_1 \textrm{e}^{\frac{\beta_2}{w_i}}, \quad i=1,\ldots,46,
-\] where \(Y_i \sim \text{BS}(\mu_i,\sigma)\). The adjustment was
-performed using the function **nlgamlss()** of the package **gamlss.nl**
-whose objective is to allow nonlinear fitting within a GAMLSS model. The
-estimates and standard errors obtained were:
+\]
+where $Y_i \sim \text{BS}(\mu_i,\sigma)$. The adjustment was performed using the function **nlgamlss()** of the package **gamlss.nl** whose objective  is to allow nonlinear fitting within a GAMLSS model. The estimates and standard errors obtained were:
 
-``` r
+
+
+```r
 library(gamlss.nl)
 ```
 
-    ## Warning: package 'gamlss.nl' was built under R version 3.4.4
+```
+## Warning: package 'gamlss.nl' was built under R version 3.4.4
+```
 
-    ## Loading required package: gamlss
+```
+## Loading required package: gamlss
+```
 
-    ## Loading required package: splines
+```
+## Loading required package: splines
+```
 
-    ## Loading required package: gamlss.data
+```
+## Loading required package: gamlss.data
+```
 
-    ## Loading required package: gamlss.dist
+```
+## Loading required package: gamlss.dist
+```
 
-    ## Loading required package: MASS
+```
+## Loading required package: MASS
+```
 
-    ## Loading required package: nlme
+```
+## Loading required package: nlme
+```
 
-    ## Loading required package: parallel
+```
+## Loading required package: parallel
+```
 
-    ##  **********   GAMLSS Version 5.0-6  **********
+```
+##  **********   GAMLSS Version 5.0-6  **********
+```
 
-    ## For more on GAMLSS look at http://www.gamlss.org/
+```
+## For more on GAMLSS look at http://www.gamlss.org/
+```
 
-    ## Type gamlssNews() to see new features/changes/bug fixes.
+```
+## Type gamlssNews() to see new features/changes/bug fixes.
+```
 
-    ## Loading required package: survival
+```
+## Loading required package: survival
+```
 
-``` r
+```r
 library(RBS)
 ```
 
-    ## Loading required package: gmm
+```
+## Loading required package: gmm
+```
 
-    ## Warning: package 'gmm' was built under R version 3.4.4
+```
+## Warning: package 'gmm' was built under R version 3.4.4
+```
 
-    ## Loading required package: sandwich
+```
+## Loading required package: sandwich
+```
 
-    ## Warning: package 'sandwich' was built under R version 3.4.4
+```
+## Warning: package 'sandwich' was built under R version 3.4.4
+```
 
-    ## Loading required package: pracma
+```
+## Loading required package: pracma
+```
 
-    ## 
-    ## Attaching package: 'RBS'
+```
+## 
+## Attaching package: 'RBS'
+```
 
-    ## The following object is masked from 'package:gamlss.data':
-    ## 
-    ##     oil
+```
+## The following object is masked from 'package:gamlss.data':
+## 
+##     oil
+```
 
-    ## The following object is masked from 'package:stats':
-    ## 
-    ##     residuals
+```
+## The following object is masked from 'package:stats':
+## 
+##     residuals
+```
 
-``` r
+```r
 library(ggplot2)
 data("Biaxial", package="ssym")
 N <- Biaxial$Life
 N <- N/100;N
 ```
 
-    ##  [1] 32.80 50.46 15.63 47.07  9.77 28.34 22.66 22.08 10.40  7.00 15.83
-    ## [12]  4.82  8.04 10.93 11.25  8.84 13.00  8.52  5.80 10.66 11.14  3.86
-    ## [23]  7.45  7.36  7.50  3.16  4.56  5.52  3.55  2.42  1.90  1.27  1.85
-    ## [34]  2.55  1.95  2.83  2.12  3.27  3.73  1.25  1.87  1.35  2.45  1.37
-    ## [45]  2.00  1.90
+```
+##  [1] 32.80 50.46 15.63 47.07  9.77 28.34 22.66 22.08 10.40  7.00 15.83
+## [12]  4.82  8.04 10.93 11.25  8.84 13.00  8.52  5.80 10.66 11.14  3.86
+## [23]  7.45  7.36  7.50  3.16  4.56  5.52  3.55  2.42  1.90  1.27  1.85
+## [34]  2.55  1.95  2.83  2.12  3.27  3.73  1.25  1.87  1.35  2.45  1.37
+## [45]  2.00  1.90
+```
 
-``` r
+```r
 W <- Biaxial$Work;W
 ```
 
-    ##  [1]  11.5  13.0  14.3  15.6  16.0  17.3  19.3  21.1  21.5  22.6  22.6
-    ## [12]  24.0  24.0  24.6  25.2  25.5  26.3  27.9  28.3  28.4  28.6  30.9
-    ## [23]  31.9  34.5  40.1  40.1  43.0  44.1  46.5  47.3  48.7  52.9  56.6
-    ## [34]  59.9  60.2  60.3  60.5  62.1  62.8  66.5  67.0  67.1  67.9  68.8
-    ## [45]  75.4 100.5
+```
+##  [1]  11.5  13.0  14.3  15.6  16.0  17.3  19.3  21.1  21.5  22.6  22.6
+## [12]  24.0  24.0  24.6  25.2  25.5  26.3  27.9  28.3  28.4  28.6  30.9
+## [23]  31.9  34.5  40.1  40.1  43.0  44.1  46.5  47.3  48.7  52.9  56.6
+## [34]  59.9  60.2  60.3  60.5  62.1  62.8  66.5  67.0  67.1  67.9  68.8
+## [45]  75.4 100.5
+```
 
-``` r
+```r
 plot(N~W)
 ```
 
-![](Application_2_files/figure-gfm/unnamed-chunk-1-1.png)<!-- -->
+![](Application_2_files/figure-html/unnamed-chunk-1-1.png)<!-- -->
 
-``` r
+```r
 mod1 <- nlgamlss(y=N,mu.fo=~p1*exp(p2/W),sigma.formula = ~1,mu.start =c(1,40),sigma.start =1,family = RBS(mu.link = "identity",sigma.link = "identity"))
 mod1$converged
 ```
 
-    ## [1] 1
+```
+## [1] 1
+```
 
-``` r
+```r
 summary(mod1)
 ```
 
-    ## *******************************************************************
-    ## Family:  c("RBS", "BirnbaumSaunders") 
-    ## 
-    ## Call:  nlgamlss(y = N, mu.fo = ~p1 * exp(p2/W), sigma.formula = ~1,  
-    ##     mu.start = c(1, 40), sigma.start = 1, family = RBS(mu.link = "identity",  
-    ##         sigma.link = "identity")) 
-    ## 
-    ## Fitting method: "JL()" 
-    ## 
-    ## -------------------------------------------------------------------
-    ## Mu link function:  identity
-    ## Mu Coefficients:
-    ##     Estimate  Std. Error  t-value    p-value
-    ## p1     1.276      0.1719    7.423  1.148e-13
-    ## p2    47.957      3.4411   13.936  3.812e-44
-    ## 
-    ## -------------------------------------------------------------------
-    ## Sigma link function:  identity
-    ## Migma Coefficients:
-    ##              Estimate  Std. Error  t-value    p-value
-    ## (Intercept)     9.814       2.048    4.792  1.651e-06
-    ## 
-    ## -------------------------------------------------------------------
-    ## No. of observations in the fit:  46 
-    ## Degrees of Freedom for the fit:  3
-    ##       Residual Deg. of Freedom:  43 
-    ##                       at cycle:  22 
-    ##  
-    ## Global Deviance:     214.695 
-    ##             AIC:     220.695 
-    ##             SBC:     226.1809 
-    ## *******************************************************************
+```
+## *******************************************************************
+## Family:  c("RBS", "BirnbaumSaunders") 
+## 
+## Call:  nlgamlss(y = N, mu.fo = ~p1 * exp(p2/W), sigma.formula = ~1,  
+##     mu.start = c(1, 40), sigma.start = 1, family = RBS(mu.link = "identity",  
+##         sigma.link = "identity")) 
+## 
+## Fitting method: "JL()" 
+## 
+## -------------------------------------------------------------------
+## Mu link function:  identity
+## Mu Coefficients:
+##     Estimate  Std. Error  t-value    p-value
+## p1     1.276      0.1719    7.423  1.148e-13
+## p2    47.957      3.4411   13.936  3.812e-44
+## 
+## -------------------------------------------------------------------
+## Sigma link function:  identity
+## Migma Coefficients:
+##              Estimate  Std. Error  t-value    p-value
+## (Intercept)     9.814       2.048    4.792  1.651e-06
+## 
+## -------------------------------------------------------------------
+## No. of observations in the fit:  46 
+## Degrees of Freedom for the fit:  3
+##       Residual Deg. of Freedom:  43 
+##                       at cycle:  22 
+##  
+## Global Deviance:     214.695 
+##             AIC:     220.695 
+##             SBC:     226.1809 
+## *******************************************************************
+```
 
-``` r
+```r
 df <- data.frame(N=N,W=W,fv=mod1$mu.fv)
 ggplot(df,aes(W,N)) + geom_point() + geom_line(aes(W,fv),col=2)
 ```
 
-![](Application_2_files/figure-gfm/unnamed-chunk-1-2.png)<!-- -->
+![](Application_2_files/figure-html/unnamed-chunk-1-2.png)<!-- -->
 
-``` r
+```r
 envelope.nlrbs <- function(model,k=19, color = "grey50", xlabel = "Theorical Quantile",ylabel = "Empirical Quantile",font="serif")
 {
  
@@ -201,22 +246,22 @@ envelope.nlrbs <- function(model,k=19, color = "grey50", xlabel = "Theorical Qua
 envelope.nlrbs(mod1)
 ```
 
-![](Application_2_files/figure-gfm/unnamed-chunk-1-3.png)<!-- -->
+![](Application_2_files/figure-html/unnamed-chunk-1-3.png)<!-- -->
 
-``` r
+```r
 df<- data.frame(res=mod1$residuals,ind=1:mod1$N,fv=mod1$mu.fv)
 ggplot(df,aes(ind,res)) + geom_point() + geom_hline(yintercept = c(-3,3),lty=2)
 ```
 
-![](Application_2_files/figure-gfm/unnamed-chunk-1-4.png)<!-- -->
+![](Application_2_files/figure-html/unnamed-chunk-1-4.png)<!-- -->
 
-``` r
+```r
 ggplot(df,aes(fv,res)) + geom_point() + geom_hline(yintercept = c(-3,3),lty=2)
 ```
 
-![](Application_2_files/figure-gfm/unnamed-chunk-1-5.png)<!-- -->
+![](Application_2_files/figure-html/unnamed-chunk-1-5.png)<!-- -->
 
-``` r
+```r
 model <- mod1
 x1 <- exp(47.954/W)
 x2 <- (1.276/W)*exp(47.954/W)
@@ -324,21 +369,21 @@ dmu <- (-1/(2 * mu)) + sigma/((y * sigma) + y + (sigma*mu)) + ((sigma + 1) * y)/
   p1 + ylim(0,1)+xlab("I")
 ```
 
-![](Application_2_files/figure-gfm/unnamed-chunk-1-6.png)<!-- -->
+![](Application_2_files/figure-html/unnamed-chunk-1-6.png)<!-- -->
 
-``` r
+```r
   p2 + ylim(0,1)+xlab("I")
 ```
 
-![](Application_2_files/figure-gfm/unnamed-chunk-1-7.png)<!-- -->
+![](Application_2_files/figure-html/unnamed-chunk-1-7.png)<!-- -->
 
-``` r
+```r
   p4 + ylim(0,1)+xlab("I")
 ```
 
-![](Application_2_files/figure-gfm/unnamed-chunk-1-8.png)<!-- -->
+![](Application_2_files/figure-html/unnamed-chunk-1-8.png)<!-- -->
 
-``` r
+```r
   I <- 1:length(dmbeta)
   dxI <- data.frame(I,dmbeta,dmalpha,dmtheta)
   dxI... <- dxI[c(1),]
@@ -348,65 +393,20 @@ dmu <- (-1/(2 * mu)) + sigma/((y * sigma) + y + (sigma*mu)) + ((sigma + 1) * y)/
   p1 + ylim(0,1)
 ```
 
-![](Application_2_files/figure-gfm/unnamed-chunk-1-9.png)<!-- -->
+![](Application_2_files/figure-html/unnamed-chunk-1-9.png)<!-- -->
 
-``` r
+```r
   p2 + ylim(0,1)
 ```
 
-![](Application_2_files/figure-gfm/unnamed-chunk-1-10.png)<!-- -->
+![](Application_2_files/figure-html/unnamed-chunk-1-10.png)<!-- -->
 
-``` r
+```r
   p4 + ylim(0,1)
 ```
 
-![](Application_2_files/figure-gfm/unnamed-chunk-1-11.png)<!-- -->
+![](Application_2_files/figure-html/unnamed-chunk-1-11.png)<!-- -->
 
-We have that the mean of the number of cycles (\(\times 100\)) to
-failure of the metal specimen can be described by
-\(\hat \mu(w_i) = 1.276\times \textrm{e}^{\frac{47.954}{w_i}}\).
+We have that the mean of the number of cycles ($\times 100$) to failure of the metal specimen can be described by $\hat \mu(w_i) = 1.276\times \textrm{e}^{\frac{47.954}{w_i}}$.
 
 ## References
-
-<div id="refs" class="references">
-
-<div id="ref-lc:09">
-
-Lemonte, A.J., and G.M. Cordeiro. 2011. “Birnbaum-Saunders nonlinear
-regression models.” *Journal of Statistical Computation and Simulation*
-53: 4441–52.
-
-</div>
-
-<div id="ref-Lemonte:2016aa">
-
-Lemonte, Artur J., Gauss M. Cordeiro, and Germán Moreno-Arenas. 2016.
-“Improved Likelihood-Based Inference in Birnbaum–Saunders Nonlinear
-Regression Models.” *Applied Mathematical Modelling* 40 (19): 8185–8200.
-
-</div>
-
-<div id="ref-Lemonte:2011aa">
-
-Lemonte, Artur J., and Alexandre G. Patriota. n.d. “Influence
-Diagnostics in Birnbaum–Saunders Nonlinear Regression Models.” *Journal
-of Applied Statistics* 38 (5). Taylor & Francis: 871–84.
-
-</div>
-
-<div id="ref-rn:91">
-
-Rieck, J.R., and J.R. Nedelman. 1991. “A log-linear model for the
-Birnbaum-Saunders distribution.” *Technometrics* 3: 51–60.
-
-</div>
-
-<div id="ref-vrc:12">
-
-Vanegas, L.H., L.M. Rondon, and F.J.A. Cysneiros. 2012. “Diagnostic
-procedures in Birnbaum-Saunders nonlinear regression models.”
-*Computational Statistics and Data Analysis* 56: 1662–80.
-
-</div>
-
-</div>
